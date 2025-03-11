@@ -27,7 +27,14 @@ class User{
             common.response(res, _response_data);
         });
     }
-    
+
+    async forgotPassword(req,res){
+        const request_data = req.body;
+        userModel.forgotPassword(request_data, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
 }
 
 

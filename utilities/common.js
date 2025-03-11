@@ -1,4 +1,6 @@
 var database = require("../config/database");
+var cryptLib = require("cryptlib");
+var constants = require("../config/constants");
 
 class common{
     generateOtp(length){
@@ -128,6 +130,12 @@ class common{
         }
     }
 
+    encrypt(data) {
+        return cryptLib.encrypt(JSON.stringify(data), constants.encryptionKey, constants.encryptionIV);
+    }
+    decryptPlain(data) {
+        return cryptLib.decrypt(data, constants.encryptionKey, constants.encryptionIV);
+    }
 
 }
 

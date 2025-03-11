@@ -7,16 +7,23 @@ const en = require("../language/en");
 const fr = require("../language/fr");
 const guj = require("../language/guj");
 const lodash = require('lodash');
+var lib = require('crypto-lib');
 
 class headerAuth{
 
-    validateHeader(req,res,next){
+    async validateHeader(req,res,next){
         var api_key = (req.headers['api-key'] != undefined && req.headers['api-key'] != "" ? req.headers['api-key'] : '');
+        console.log("api-key",api_key)
         if(api_key != ""){
             try{
-                if(api_key === process.env.API_KEY){
+                var api_dec = common.decryptPlain(api_key).replace(/\0/g, '').replace(/[^\x00-\xFF]/g, "");
+                console.log(api_dec);
+                console.log(api_dec === process.env.API_KEY);
+                if(api_dec === process.env.API_KEY){
+                    console.log("iF")
                     next();
                 } else{
+                    console.log("here");
                     const response_data = {
                         code: response_code.UNAUTHORIZED,
                         message: "Invalid API Key"
@@ -25,6 +32,7 @@ class headerAuth{
                 }
 
             } catch(error){
+                console.log(error);
                     const response_data = {
                         code: response_code.UNAUTHORIZED,
                         message: "Invalid API Key"
@@ -73,6 +81,7 @@ class headerAuth{
 
     async header(req, res, next) {
         try {
+            console.log("here");
             let headers = req.headers;
             var supported_languages = ["en", "fr", "guj"];
             let lng = (headers["accept-language"] && supported_languages.includes(headers["accept-language"]))
@@ -87,8 +96,10 @@ class headerAuth{
                 .add("guj", guj);
     
             const byPassApi = ['forgotPassword', 'verifyOtp', 'resendOTP' , 'login', 'signup', 'resetPassword', 'api-docs'];
-    
-            if (lodash.isEqual(headers["api-key"], process.env.API_KEY)) {
+            console.log("here");
+            var api_dec = common.decryptPlain(headers["api-key"]).replace(/\0/g, '').replace(/[^\x00-\xFF]/g, "");
+            console.log(api_dec === process.env.API_KEY);
+            if (api_dec === process.env.API_KEY) {
                 var headerObj = new headerAuth();
                 req = headerObj.extractMethod(req);
     
@@ -112,6 +123,7 @@ class headerAuth{
                         console.log("req.user_id set to:", req.user_id);
                         next();
                     } catch (error) {
+                        console.log(error);
                         return res.status(401).json({
                             code: response_code.UNAUTHORIZED,
                             message: "Invalid Access Token"

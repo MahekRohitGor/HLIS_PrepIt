@@ -7,6 +7,7 @@ const en = require("../../../../language/en");
 const fr = require("../../../../language/fr");
 const guj = require("../../../../language/guj");
 const validator = require("../../../../middlewares/validator");
+var lib = require('crypto-lib');
 
 const { t } = require('localizify');
 const user = require("../controllers/user");
