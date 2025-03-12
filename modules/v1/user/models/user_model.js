@@ -661,6 +661,38 @@ class userModel{
             }));
         }
     }
+    
+    async help_support(requested_data, user_id, callback){
+        try{
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            const help_data = {
+                user_id: user_id,
+                full_name: request_data.full_name,
+                phone_number: request_data.phone_number,
+                email_id: request_data.email_id,
+                descp: request_data.descp
+            }
+
+            const query = `INSERT INTO tbl_help_support SET ?`
+            await database.query(query, [help_data]);
+
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "SUCCESS"
+            }));
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }));
+        }
+    }
+
+    
+
+
 }
 
 module.exports = new userModel();

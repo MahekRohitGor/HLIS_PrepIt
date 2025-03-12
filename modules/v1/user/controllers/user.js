@@ -73,6 +73,14 @@ class User{
         });
     }
 
+    async help_support(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.help_support(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
 }
 
 

@@ -10,6 +10,7 @@ const user = (app) =>{
         app.post("/v1/user/complete-profile", users.complete_profile);
         app.post("/v1/user/get-item-details", users.get_item_details);
         app.post("/v1/user/add-delivery-address", users.add_delivery_address);
+        app.post("/v1/user/help-support", users.help_support);
 }
 
 module.exports = user;
