@@ -11,6 +11,7 @@ const user = (app) =>{
         app.post("/v1/user/get-item-details", users.get_item_details);
         app.post("/v1/user/add-delivery-address", users.add_delivery_address);
         app.post("/v1/user/help-support", users.help_support);
+        app.post("/v1/user/list-notification", users.list_notifications);
 }
 
 module.exports = user;

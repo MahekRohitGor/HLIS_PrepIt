@@ -81,6 +81,12 @@ class User{
         });
     }
 
+    async list_notifications(req,res){
+        const user_id = req.user_id;
+        userModel.list_notifications(user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
 }
 
 
