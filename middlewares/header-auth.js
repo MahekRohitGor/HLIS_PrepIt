@@ -12,6 +12,7 @@ var lib = require('crypto-lib');
 class headerAuth{
 
     async validateHeader(req,res,next){
+        console.log(req.headers);
         var api_key = (req.headers['api-key'] != undefined && req.headers['api-key'] != "" ? req.headers['api-key'] : '');
         console.log("api-key",api_key)
         if(api_key != ""){

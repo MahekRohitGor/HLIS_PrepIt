@@ -13,8 +13,11 @@ const { t } = require('localizify');
 const user = require("../controllers/user");
 
 class userModel{
-    async signup(request_data, callback) {
+    async signup(requested_data, callback) {
         try {
+
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            console.log(typeof request_data);
             const data = {
                 user_name: request_data.user_name,
                 code_id: request_data.code_id,
@@ -48,13 +51,13 @@ class userModel{
                     console.log("User reactivated and updated");
     
                     // Now, update OTP
-                    await common.updateOtp(user_id); // Function to update OTP
+                    await common.updateOtp(user_id); 
                     console.log("OTP updated for reactivated user");
     
-                    return callback({
+                    return callback(common.encrypt({
                         code: response_code.SUCCESS,
                         message: "Account reactivated. OTP sent for verification."
-                    });
+                    }));
     
                 } else {
                     // If user already verified
@@ -62,13 +65,12 @@ class userModel{
                     const [data_verify] = await database.query(findIsVerify, [user_id]);
     
                     if (data_verify.length > 0) {
-                        return callback({
+                        return callback(common.encrypt({
                             code: response_code.OPERATION_FAILED,
                             message: "User already registered and verified, please login",
                             data: user_data_
-                        });
+                        }));
                     } else {
-                        // If user found but not verified, update OTP
                         console.log("here");
                         const otp_obj = request_data.otp ? { otp: request_data.otp } : {};
                         otp_obj.is_deleted = 0;
@@ -77,17 +79,21 @@ class userModel{
 
                         common.updateUserInfo(user_id, otp_obj, (error, updateUser) => {
                             if (error) {
-                                console.log(error);
-                                return callback({
+                                const message = {
                                     code: response_code.OPERATION_FAILED,
                                     message: "EMAIL ID ALREADY PRESENT OR VERIFIED"
-                                });
+                                }
+                                const sendMessage = common.encrypt(message);
+                                return callback(sendMessage);
                             }
-                            return callback({
+                            const message = {
                                 code: response_code.SUCCESS,
                                 message: "Successfully Verified",
                                 data: updateUser
-                            });
+                            }
+
+                            const sendMessage = common.encrypt(message);
+                            return callback(sendMessage);
                         });
                     }
                 }
@@ -111,10 +117,12 @@ class userModel{
                 // Fetch and handle user details
                 common.getUserDetail(userId, userId, async (err, userInfo) => {
                     if (err) {
-                        return callback({
+                        const message = {
                             code: response_code.OPERATION_FAILED,
-                            message: t('rest_keywords_something_went_wrong', { username: request_data.user_name })
-                        });
+                            message: t('rest_keywords_something_went_wrong')
+                        }
+                        const sendMessage = common.encrypt(message);
+                        return callback(sendMessage);
                     }
     
                     // Handle profile completion and tokens
@@ -127,28 +135,35 @@ class userModel{
                         ]);
                         userInfo.token = userToken;
                         userInfo.device_token = deviceToken;
-    
-                        return callback({
+
+                        const message = {
                             code: response_code.VERIFICATION_PENDING,
                             message: t('rest_keywords_success') + "... " + t('verification_pending'),
                             data: userInfo
-                        });
+                        };
+                        const sendMessage = common.encrypt(message);
+                        return callback(sendMessage);
+
                     } else {
                         await database.query(`UPDATE tbl_user SET isstep_ = ? WHERE user_id = ?`, ['1', userId]);
-                        return callback({
+                        const message = {
                             code: response_code.VERIFICATION_PENDING,
                             message: t('rest_keywords_success') + "... " + t('verification_profile_pending'),
                             data: userInfo
-                        });
+                        }
+                        const sendMessage = common.encrypt(message);
+                        return callback(sendMessage);
                     }
                 });
             }
         } catch (error) {
             console.log("Signup Error: ", error);
-            return callback({
+            const message = {
                 code: response_code.OPERATION_FAILED,
-                message: t('rest_keywords_something_went_wrong', { username: request_data.user_name })
-            });
+                message: t('rest_keywords_something_went_wrong')
+            }
+            const sendMessage = common.encrypt(message);
+            return callback(sendMessage);
         }
     } 
 
@@ -307,7 +322,7 @@ class userModel{
 
     async forgotPassword(request_data, callback) {
         try {
-            if (!request_data.email_id && !request_data.mobile_number) {
+            if (!request_data.email_id && !request_data.phone_number) {
                 return callback({
                     code: response_code.OPERATION_FAILED,
                     message: t('provide_email_or_mobile')
@@ -324,8 +339,8 @@ class userModel{
                 queryParams.push(request_data.email_id);
             }
     
-            if (request_data.mobile_number) {
-                queryConditions.push("mobile_number = ?");
+            if (request_data.phone_number) {
+                queryConditions.push("phone_number = ?");
                 queryParams.push(request_data.mobile_number);
             }
     
@@ -350,9 +365,9 @@ class userModel{
     
             if (request_data.email_id) {
                 tokenData.email_id = request_data.email_id;
-                tokenData.mobile_number = null;
-            } else if (request_data.mobile_number) {
-                tokenData.mobile_number = request_data.mobile_number;
+                tokenData.phone_number = null;
+            } else if (request_data.phone_number) {
+                tokenData.phone_number = request_data.phone_number;
                 tokenData.email_id = null;
             }
     
@@ -378,7 +393,7 @@ class userModel{
     
         try {
             const selectTokenQuery = `
-                SELECT email_id, mobile_number FROM tbl_forgot_passwords 
+                SELECT email_id, phone_number FROM tbl_forgot_passwords 
                 WHERE reset_token = '${reset_token}' AND is_active = 1 AND expires_at > NOW()
             `;
             console.log(selectTokenQuery);
@@ -397,7 +412,7 @@ class userModel{
             const mobile_number = result[0].mobile_number;
             const hashedPassword = md5(new_password);
     
-            const updatePasswordQuery = "UPDATE tbl_user SET passwords = ? WHERE email_id = ? or mobile_number = ?";
+            const updatePasswordQuery = "UPDATE tbl_user SET password_ = ? WHERE email_id = ? or phone_number = ?";
             await database.query(updatePasswordQuery, [hashedPassword, email_id, mobile_number]);
     
             const deactivateTokenQuery = "UPDATE tbl_forgot_passwords SET is_active = 0 WHERE reset_token = ?";
@@ -421,15 +436,15 @@ class userModel{
         if(request_data.email_id != undefined && request_data.email_id != ""){
             user_data.email_id = request_data.email_id;
         }
-        if(request_data.mobile_number != undefined && request_data.mobile_number != ""){
-            user_data.mobile_number = request_data.mobile_number;
+        if(request_data.phone_number != undefined && request_data.phone_number != ""){
+            user_data.phone_number = request_data.phone_number;
         }
-        if(request_data.passwords != undefined){
-            user_data.passwords = md5(request_data.passwords);
+        if(request_data.password_ != undefined){
+            user_data.password_ = md5(request_data.password_);
         }
 
-        var selectUserWithCred = "SELECT * FROM tbl_user WHERE (email_id = ? AND passwords = ?) or (mobile_number = ? and passwords = ?)";
-        var params = [user_data.email_id, user_data.passwords, user_data.mobile_number, user_data.passwords];
+        var selectUserWithCred = "SELECT * FROM tbl_user WHERE (email_id = ? AND password_ = ?) or (phone_number = ? and password_ = ?) and is_active = 1 and is_deleted = 0";
+        var params = [user_data.email_id, user_data.password_, user_data.phone_number, user_data.password_];
 
         try{
             const [status] = await database.query(selectUserWithCred, params);
@@ -452,7 +467,6 @@ class userModel{
             await database.query(updateDeviceToken, [device_token, user_id]);
 
             common.getUserDetailLogin(user_id, (err, userInfo)=>{
-                // console.log("getUserDetailLogin callback:", err, userInfo);
                 if(err){
                     console.log("Error here", err);
                     return callback({
@@ -479,6 +493,7 @@ class userModel{
             });
         }
     }
+    
 
 }
 

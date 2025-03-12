@@ -35,6 +35,20 @@ class User{
         });
     }
 
+    async resetPassword(req,res){
+        const request_data = req.body;
+        userModel.resetPassword(request_data, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async login(req,res){
+        const request_data = req.body;
+        userModel.login(request_data, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
 }
 
 

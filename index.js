@@ -10,9 +10,9 @@ const headerAuth = require("./middlewares/header-auth");
 require('dotenv').config();
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.text());
 
-app.use(validator.extractHeaderLang);
+// app.use(validator.extractHeaderLang);
 app.use(headerAuth.validateHeader);
 app.use(headerAuth.header);
 

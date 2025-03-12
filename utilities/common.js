@@ -50,15 +50,10 @@ class common{
         }
     }
 
-    async getUserDetailLogin(user_id, login_type, callback){
+    async getUserDetailLogin(user_id, callback){
         console.log("User ID:", user_id);
-        console.log("Login Type:", login_type);
         var selectUserQuery;
-        if(login_type == "S"){
-            selectUserQuery = "SELECT * from tbl_user where user_id = ?";
-        } else{
-            selectUserQuery = "SELECT u.* from tbl_user u inner join tbl_socials s on s.social_id = u.social_id where u.user_id = ?";
-        }
+        selectUserQuery = "SELECT * from tbl_user where user_id = ?";
         
         try{
 

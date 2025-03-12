@@ -32,6 +32,7 @@ class validator{
     }
 
     extractHeaderLang(req,res,next) {
+        console.log(req);
         req.userLang = req.headers["accept-language"] || "en";
 
         localizify
