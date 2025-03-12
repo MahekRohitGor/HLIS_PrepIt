@@ -15,9 +15,9 @@ const user = require("../controllers/user");
 class userModel{
     async signup(requested_data, callback) {
         try {
-
+            // decrypt data and convert into json
             const request_data = JSON.parse(common.decryptPlain(requested_data));
-            console.log(typeof request_data);
+
             const data = {
                 user_name: request_data.user_name,
                 code_id: request_data.code_id,
@@ -33,8 +33,6 @@ class userModel{
             if (request_data.device_type) device_data.device_type = request_data.device_type;
             if (request_data.os_version) device_data.os_version = request_data.os_version;
             if (request_data.app_version) device_data.app_version = request_data.app_version;
-    
-            console.log(data);
     
             const selectUser = `SELECT * FROM tbl_user WHERE email_id = ? OR phone_number = ?`;
             const [result] = await database.query(selectUser, [request_data.email_id, request_data.phone_number || '']);
@@ -81,7 +79,7 @@ class userModel{
                             if (error) {
                                 const message = {
                                     code: response_code.OPERATION_FAILED,
-                                    message: "EMAIL ID ALREADY PRESENT OR VERIFIED"
+                                    message: t('email_already_present')
                                 }
                                 const sendMessage = common.encrypt(message);
                                 return callback(sendMessage);
@@ -174,20 +172,20 @@ class userModel{
         console.log("OTP sent to user_id:", user_id, "OTP:", otp);
     }
 
-    async verifyOtp(request_data, callback) {
+    async verifyOtp(requested_data, callback) {
         try {
-            console.log("Requested data: ", request_data);
+            // decrypt data and parse into json
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
 
             const {email_id} = request_data;
-
             const selectUserQuery = "SELECT user_id FROM tbl_user WHERE email_id = ? and is_active = 1 and is_deleted = 0";
             const [userResult] = await database.query(selectUserQuery, [email_id]);
 
             if (userResult.length === 0) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.NOT_FOUND,
                     message: t('email_not_registered')
-                });
+                }));
             }
 
             const user_id = userResult[0].user_id;
@@ -196,10 +194,10 @@ class userModel{
             const [result] = await database.query(selectUserWithUnverified, [user_id]);
     
             if (result.length === 0) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.OPERATION_FAILED,
                     message: t('otp_not_found')
-                });
+                }));
             }
     
             const userOtpData = result[0];
@@ -207,11 +205,11 @@ class userModel{
             const expireTime = new Date(userOtpData.expire_time);
     
             if (userOtpData.verify === 1) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.SUCCESS,
                     message: t('already_verified'),
                     data: userOtpData
-                });
+                }));
             }
 
             if (currentTime > expireTime) {
@@ -222,11 +220,11 @@ class userModel{
                 const updateOtpQuery = "UPDATE tbl_otp SET otp = ?, expire_time = ? WHERE user_id = ?";
                 await database.query(updateOtpQuery, [newOtp, newExpireTime, user_id]);
     
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.SUCCESS,
                     message: "OTP Expired. New OTP sent.",
                     data: { newOtp, expire_time: newExpireTime }
-                });
+                }));
             }
     
             if (request_data.otp === userOtpData.otp) {
@@ -236,36 +234,39 @@ class userModel{
                 const updateIsStepQuery = "UPDATE tbl_user SET isstep_ = ? WHERE user_id = ?";
                 await database.query(updateIsStepQuery, ['2', user_id]);
     
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.SUCCESS,
                     message: t('otp_verify_success')
-                });
+                }));
             } else {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.OPERATION_FAILED,
                     message: t('invalid_otp')
-                });
+                }));
             }
         } catch (error) {
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
                 message: t('some_error_occurred'),
                 data: error
-            });
+            }));
         }
     }
 
-    async resendOTP(request_data, callback){
+    async resendOTP(requested_data, callback){
         try{
+        // decrypt and parse into JSON    
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+
         const {email_id} = request_data;
         const selectUserQuery = "SELECT user_id FROM tbl_user WHERE email_id = ? and is_active = 1 and is_deleted = 0";
         const [userResult] = await database.query(selectUserQuery, [email_id]);
 
         if (userResult.length === 0) {
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
                 message: t('email_not_registered')
-            });
+            }));
         }
 
         const user_id = userResult[0].user_id;
@@ -281,20 +282,20 @@ class userModel{
 
             console.log(`New OTP for User ID ${user_id}: ${newOtp}`);
 
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.SUCCESS,
                 message: t('new_otp_generated_sent_msg'),
                 data: { user_id, expire_time: newExpireTime }
-            });
+            }));
         }
 
         const { otp, expire_time, verify } = otpResult[0];
         const currentTime = new Date();
         if (verify === 1) {
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.SUCCESS,
                 message: t('otp_already_verified'),
-            });
+            }));
         }
 
         if (expire_time < currentTime || verify === 0) {
@@ -305,28 +306,30 @@ class userModel{
 
             console.log(`Updated OTP for User ID ${user_id}: ${newOtp}`);
 
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.SUCCESS,
                 message: t('new_otp_sent'),
                 data: { user_id, expire_time: newExpireTime }
-            });
+            }));
         }
         }catch (error) {
-        return callback({
+        return callback(common.encrypt({
             code: response_code.OPERATION_FAILED,
             message: t('some_error_occurred'),
             data: error
-        });
+        }));
     }
     }
 
-    async forgotPassword(request_data, callback) {
+    async forgotPassword(requested_data, callback) {
         try {
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+
             if (!request_data.email_id && !request_data.phone_number) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.OPERATION_FAILED,
                     message: t('provide_email_or_mobile')
-                });
+                }));
             }
     
             const data = {};
@@ -349,10 +352,10 @@ class userModel{
             const [userResult] = await database.query(userQuery, queryParams);
     
             if (userResult.length === 0) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.OPERATION_FAILED,
                     message: t('user_not_found_signup_req')
-                });
+                }));
             }
     
             const user = userResult[0];
@@ -373,21 +376,21 @@ class userModel{
     
             await database.query("INSERT INTO tbl_forgot_passwords SET ?", tokenData);
             
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.SUCCESS,
                 message: t('password_reset_token_sent')
-            });
+            }));
     
         } catch(error) {
-            console.error(error);
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
                 message: error.sqlMessage || t('forgot_password_error')
-            });
+            }));
         }
     }
 
-    async resetPassword(requested_data, callback){
+    async resetPassword(request_data, callback){
+        const requested_data = JSON.parse(common.decryptPlain(request_data));
         const { reset_token, new_password } = requested_data;
         console.log(reset_token);
     
@@ -402,10 +405,10 @@ class userModel{
             console.log(result);
     
             if (!result.length) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.NOT_FOUND,
                     message: t('invalid_expired_reset_token')
-                });
+                }));
             }
     
             const email_id = result[0].email_id;
@@ -418,20 +421,22 @@ class userModel{
             const deactivateTokenQuery = "UPDATE tbl_forgot_passwords SET is_active = 0 WHERE reset_token = ?";
             await database.query(deactivateTokenQuery, [reset_token]);
     
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.SUCCESS,
                 message: t('password_reset_success')
-            });
+            }));
     
         } catch (error) {
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
                 message: error.sqlMessage || t('password_reset_error')
-            });
+            }));
         }
     }
 
-    async login(request_data, callback){
+    async login(requested_data, callback){
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+
         const user_data = {};
         if(request_data.email_id != undefined && request_data.email_id != ""){
             user_data.email_id = request_data.email_id;
@@ -450,10 +455,10 @@ class userModel{
             const [status] = await database.query(selectUserWithCred, params);
 
             if (status.length === 0) {
-                return callback({
+                return callback(common.encrypt({
                     code: response_code.NOT_FOUND,
                     message: t('no_data_found')
-                });
+                }));
             }
 
             const user_id = status[0].user_id;
@@ -469,32 +474,193 @@ class userModel{
             common.getUserDetailLogin(user_id, (err, userInfo)=>{
                 if(err){
                     console.log("Error here", err);
-                    return callback({
+                    return callback(common.encrypt({
                         code: response_code.OPERATION_FAILED,
                         message: t('no_data_found')
-                    });
+                    }));
                 }
                 else{
                     userInfo.token = token;
                     userInfo.device_token = device_token;
-                    return callback({
+                    return callback(common.encrypt({
                         code: response_code.SUCCESS,
                         message: t('login_success'),
                         data: userInfo
-                    });
+                    }));
 
                 }
             });
 
         } catch(error){
-            return callback({
+            return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
                 message: error.sqlMessage || t('login_error')
-            });
+            }));
         }
     }
     
+    async complete_profile(requested_data, user_id, callback) {
+        try {
+            console.log(user_id);
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+    
+            const [checkResult] = await database.query(
+                `SELECT isstep_ FROM tbl_user WHERE user_id = ?`,
+                [user_id]
+            );
+    
+            if (checkResult.length === 0) {
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: "User not found"
+                }));
+            }
+    
+            const currentStep = checkResult[0].isstep_;
+    
+            if (currentStep !== '3') {
+                const goal_loc_data = {
+                    latitude: request_data.latitude,
+                    longitude: request_data.longitude,
+                    goal_id: request_data.goal_id
+                };
+    
+                const updateGoalLocQuery = `
+                    UPDATE tbl_user
+                    SET latitude = ?, longitude = ?, goal_id = ?, isstep_ = '3'
+                    WHERE user_id = ?
+                `;
+                await database.query(updateGoalLocQuery, [
+                    goal_loc_data.latitude,
+                    goal_loc_data.longitude,
+                    goal_loc_data.goal_id,
+                    user_id
+                ]);
+            }
+    
+            const profile_fields = [];
+            const profile_values = [];
+    
+            if (request_data.gender) {
+                profile_fields.push('gender = ?');
+                profile_values.push(request_data.gender);
+            }
+            if (request_data.dob) {
+                profile_fields.push('dob = ?');
+                profile_values.push(request_data.dob);
+            }
+            if (request_data.target_weight_kg) {
+                profile_fields.push('target_weight_kg = ?');
+                profile_values.push(request_data.target_weight_kg);
+            }
+            if (request_data.current_weight_kg) {
+                profile_fields.push('current_weight_kg = ?');
+                profile_values.push(request_data.current_weight_kg);
+            }
+            if (request_data.activity_level) {
+                profile_fields.push('activity_level = ?');
+                profile_values.push(request_data.activity_level);
+            }
+    
+            if (profile_fields.length > 0) {
+                profile_fields.push("isstep_ = '4', is_profile_completed = 1");
+                const updateProfileQuery = `
+                    UPDATE tbl_user
+                    SET ${profile_fields.join(", ")}
+                    WHERE user_id = ?
+                `;
+                profile_values.push(user_id);
+    
+                await database.query(updateProfileQuery, profile_values);
+            }
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "Profile Completed Successfully"
+            }));
+    
+        } catch (error) {
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "SOME ERROR OCCURRED",
+                data: error.message
+            }));
+        }
+    }            
 
+    async get_item_details(request_data, user_id, callback){
+        try{
+            const requested_data = JSON.parse(common.decryptPlain(request_data));
+            const item_id = requested_data.item_id;
+
+            const query = `select  ing.ingredient_name ,i.image_name,itd.name_,itd.kcal,itd.carbs_gm,itd.protein,itd.fat_gm,itd.about  
+                            from tbl_item as itd
+                            left join  ing_item_rel rinit on itd.item_id = rinit.item_id
+                            left join tbl_ingredients ing on ing.ing_id= rinit.ing_id
+                            left join tbl_images i on i.image_id = itd.image_id
+                            where itd.item_id = ?;`;
+            const [result] = await database.query(query, [item_id]);
+
+            if(result.length === 0){
+                return callback(common.encrypt({
+                    code: response_code.DATA_NOT_FOUND,
+                    message: "NO MEAL ITEM FOUND",
+                    data: []
+                }));
+            }
+
+            else{
+                return callback(common.encrypt({
+                    code: response_code.SUCCESS,
+                    message: "SUCCESS",
+                    data: result[0]
+                }))
+            }
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }))
+        }
+    }
+
+    async add_delivery_address(requested_data, user_id, callback){
+        try{
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+
+            const delivery_data = {
+                latitude: request_data.latitude,
+                longitude: request_data.longitude,
+                area_name: request_data.area_name,
+                flat_number: request_data.flat_number,
+                block_number: request_data.block_number,
+                road_name: request_data.road_name,
+                delivery_info: request_data.delivery_info,
+                type_: request_data.type_
+            }
+
+            const query = `INSERT INTO tbl_delivery_address SET ?`;
+            const [res] = await database.query(query, [delivery_data]);
+            const insertId = res.insertId;
+
+            const update_user_info = `update tbl_user set delivery_address = ? where user_id = ?`;
+            await database.query(update_user_info, [insertId, user_id]);
+            
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "SUCCESS"
+            }));
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }));
+        }
+    }
 }
 
 module.exports = new userModel();

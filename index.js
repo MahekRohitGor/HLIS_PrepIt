@@ -12,7 +12,7 @@ require('dotenv').config();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.text());
 
-// app.use(validator.extractHeaderLang);
+app.use(validator.extractHeaderLang);
 app.use(headerAuth.validateHeader);
 app.use(headerAuth.header);
 

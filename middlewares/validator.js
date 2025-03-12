@@ -32,7 +32,6 @@ class validator{
     }
 
     extractHeaderLang(req,res,next) {
-        console.log(req);
         req.userLang = req.headers["accept-language"] || "en";
 
         localizify
@@ -42,7 +41,9 @@ class validator{
         
         localizify.setLocale(req.userLang);
         if (!req.body.userLang) {
-            req.body.userLang = req.userLang;
+            const req_body = JSON.parse(common.decryptPlain(req.body));
+            req_body.userLang = req.userLang;
+            req.body = common.encrypt(req_body);
         }
         next();
     }

@@ -12,19 +12,14 @@ var lib = require('crypto-lib');
 class headerAuth{
 
     async validateHeader(req,res,next){
-        console.log(req.headers);
         var api_key = (req.headers['api-key'] != undefined && req.headers['api-key'] != "" ? req.headers['api-key'] : '');
-        console.log("api-key",api_key)
         if(api_key != ""){
             try{
                 var api_dec = common.decryptPlain(api_key).replace(/\0/g, '').replace(/[^\x00-\xFF]/g, "");
-                console.log(api_dec);
                 console.log(api_dec === process.env.API_KEY);
                 if(api_dec === process.env.API_KEY){
-                    console.log("iF")
                     next();
                 } else{
-                    console.log("here");
                     const response_data = {
                         code: response_code.UNAUTHORIZED,
                         message: "Invalid API Key"
@@ -97,9 +92,7 @@ class headerAuth{
                 .add("guj", guj);
     
             const byPassApi = ['forgotPassword', 'verifyOtp', 'resendOTP' , 'login', 'signup', 'resetPassword', 'api-docs'];
-            console.log("here");
             var api_dec = common.decryptPlain(headers["api-key"]).replace(/\0/g, '').replace(/[^\x00-\xFF]/g, "");
-            console.log(api_dec === process.env.API_KEY);
             if (api_dec === process.env.API_KEY) {
                 var headerObj = new headerAuth();
                 req = headerObj.extractMethod(req);
@@ -116,9 +109,7 @@ class headerAuth{
                     }
 
                     try {
-                        console.log(token);
                         const user = await headerObj.getRequestOwner(token);
-                        console.log(user);
                         req.user_id = user.user_id;
                         req.user = user;
                         console.log("req.user_id set to:", req.user_id);

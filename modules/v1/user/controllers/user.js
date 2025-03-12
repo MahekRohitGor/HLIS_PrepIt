@@ -49,6 +49,30 @@ class User{
         });
     }
 
+    async complete_profile(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.complete_profile(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async get_item_details(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.get_item_details(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async add_delivery_address(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.add_delivery_address(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
 }
 
 
