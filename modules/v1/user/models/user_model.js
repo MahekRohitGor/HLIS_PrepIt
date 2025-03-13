@@ -693,7 +693,6 @@ class userModel{
     async list_notifications(user_id, callback){
         try{
             // const request_data = JSON.parse(common.decryptPlain(requested_data));
-
             const query = `SELECT * from tbl_notification where user_id = ?`;
             const [notifications] = await database.query(query, [user_id]);
             if(notifications.length === 0){
@@ -719,6 +718,120 @@ class userModel{
         }
     }
 
+    async make_order(requested_data, user_id, callback) {
+        try {
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            const meals = request_data.meals;
+            const category = request_data.category;
+    
+            if (!meals || meals.length === 0) {
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: "No meals provided to place order"
+                }));
+            }
+    
+            const now = new Date();
+            const delivery_time_start = now.toTimeString().split(' ')[0]; 
+    
+            const deliveryEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); 
+            const delivery_time_end = deliveryEndDate.toTimeString().split(' ')[0]; 
+    
+            const order_data = {
+                user_id: user_id,
+                delivery_id: request_data.delivery_id,
+                note: request_data.note || null,
+                status_: 'confirmed',
+                delivery_time_start: delivery_time_start,
+                delivery_time_end: delivery_time_end,
+                total_qty: 0
+            };
+    
+            const [orderRes] = await database.query(`INSERT INTO tbl_order SET ?`, [order_data]);
+            const order_id = orderRes.insertId;
+    
+            for (const meal of meals) {
+                const meal_data = {
+                    order_id: order_id,
+                    item_id: meal.item_id,
+                    qty: meal.qty || 1,
+                    category: category,
+                    user_id: user_id
+                };
+                await database.query(`INSERT INTO tbl_meal SET ?`, [meal_data]);
+            }
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "ORDER PLACED SUCCESSFULLY",
+                data: { order_id: order_id }
+            }));
+    
+        } catch (error) {
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR PLACING ORDER",
+                data: error.message
+            }));
+        }
+    }
+    
+    async delete_account(user_id, callback){
+        try{
+            const queries = [
+                `UPDATE tbl_user SET is_deleted = 1, is_active = 0, token = null, is_login = 0 WHERE user_id = ?`,
+                `UPDATE tbl_otp SET is_deleted = 1, is_active = 0, verify = 0 WHERE user_id = ?`,
+                `UPDATE tbl_order SET is_deleted = 1, is_active = 0 WHERE user_id = ?`,
+                `UPDATE tbl_meal SET is_deleted = 1, is_active = 0 WHERE user_id = ?`,
+                `UPDATE tbl_device_info SET is_deleted = 1, is_active = 0 WHERE user_id = ?`,
+                `UPDATE tbl_notification SET is_deleted = 1, is_active = 0 WHERE user_id = ?`,
+                `UPDATE tbl_help_support SET is_deleted = 1, is_active = 0 WHERE user_id = ?`
+            ];
+
+            for (const query of queries) {
+                await database.query(query, [user_id]);
+            }
+
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "ACCOUNT DELETED SUCCESSFULLY"
+            }));
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }));
+        }
+    }
+
+    async logout(user_id, callback) {
+        try {
+            const query = `UPDATE tbl_user SET is_login = 0, token = NULL WHERE user_id = ?`;
+            const [result] = await database.query(query, [user_id]);
+    
+            if (result.affectedRows === 0) {
+                return callback(common.encrypt({
+                    code: response_code.DATA_NOT_FOUND,
+                    message: "USER NOT FOUND OR ALREADY LOGGED OUT"
+                }));
+            }
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "LOGOUT SUCCESSFUL"
+            }));
+    
+        } catch (error) {
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }));
+        }
+    }
+    
+    
 
 }
 

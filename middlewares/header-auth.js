@@ -20,26 +20,29 @@ class headerAuth{
                 if(api_dec === process.env.API_KEY){
                     next();
                 } else{
-                    const response_data = {
+                    const response_data_ = {
                         code: response_code.UNAUTHORIZED,
                         message: "Invalid API Key"
                     }
+                    const response_data = common.encrypt(response_data_);
                     res.status(401).send(response_data);
                 }
 
             } catch(error){
                 console.log(error);
-                    const response_data = {
+                    const response_data_ = {
                         code: response_code.UNAUTHORIZED,
                         message: "Invalid API Key"
                     }
+                    const response_data = common.encrypt(response_data_);
                     res.status(401).send(response_data);
             }
         } else{
-            const response_data = {
+            const response_data_ = {
                 code: response_code.UNAUTHORIZED,
                 message: "Invalid API Key"
             }
+            const response_data = common.encrypt(response_data_);
             res.status(401).send(response_data);
         }
     }

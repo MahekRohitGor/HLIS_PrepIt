@@ -87,6 +87,28 @@ class User{
             common.response(res, _response_data);
         });
     }
+    async make_order(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.make_order(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async logout(req,res){
+        const user_id = req.user_id;
+        userModel.logout(user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async delete_account(req,res){
+        const user_id = req.user_id;
+        userModel.delete_account(user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+    
 }
 
 
