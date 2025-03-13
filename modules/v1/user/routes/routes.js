@@ -15,6 +15,7 @@ const user = (app) =>{
         app.post("/v1/user/make-order", users.make_order);
         app.post("/v1/user/logout", users.logout);
         app.post("/v1/user/delete-account", users.delete_account);
+        app.post("/v1/user/show-order-detail", users.show_order_details);
 }
 
 module.exports = user;

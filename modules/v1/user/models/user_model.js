@@ -831,6 +831,37 @@ class userModel{
         }
     }
     
+    async show_order_details(requested_data, user_id, callback) {
+        try {
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            const order_id = request_data.order_id;
+            const findOrder = `SELECT * FROM tbl_order WHERE user_id = ? AND order_id = ?`;
+            const [result] = await database.query(findOrder, [user_id, order_id]);
+    
+            if (result.length === 0) {
+                return callback(common.encrypt({
+                    code: response_code.NOT_FOUND,
+                    message: "No Data Found",
+                    data: []
+                }));
+            }
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "FOUND",
+                data: result
+            }));
+    
+        } catch (error) {
+            console.error("Order details fetch error:", error);
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "An error occurred while fetching order details.",
+                data: null
+            }));
+        }
+    }
+
     
 
 }

@@ -108,7 +108,15 @@ class User{
             common.response(res, _response_data);
         });
     }
-    
+
+    async show_order_details(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.show_order_details(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
 }
 
 
