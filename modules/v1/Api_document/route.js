@@ -12,7 +12,9 @@ router.get('/api_doc', (req, res) => {
     res.render(path.join(__dirname + '/view/api_doc.ejs'), {
         BASE_URL: process.env.BASE_URL,
         BASE_URL_WITHOUT_API: process.env.BASE_URL_WITHOUT_API,
-        APP_NAME: process.env.APP_NAME
+        APP_NAME: process.env.APP_NAME,
+        API_KEY: process.env.API_KEY,
+        PORT_BASE_URL: process.env.PORT_BASE_URL
     });
 });
 
