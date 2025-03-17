@@ -17,8 +17,21 @@ class Admin {
 
     async add_items(req,res){
         const request_data = req.body;
-        console.log(typeof adminModel.admin_login);
         adminModel.add_items(request_data, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async analytics(req,res){
+        const request_data = req.body;
+        adminModel.analytics(request_data, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async admin_logout(req,res){
+        const admin_id = req.user_id;
+        adminModel.admin_logout(admin_id, (_response_data)=>{
             common.response(res, _response_data);
         });
     }

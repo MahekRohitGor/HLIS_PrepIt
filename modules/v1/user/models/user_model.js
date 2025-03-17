@@ -861,7 +861,52 @@ class userModel{
             }));
         }
     }  
-    
+
+    async display_home_page(requested_data, user_id, callback){
+        try{
+            const query = `SELECT 
+                            SUM(ti.kcal * tm.qty) AS total_kcal, 
+                            SUM(ti.carbs_gm * tm.qty) AS total_carbs_gm,
+                            SUM(ti.protein * tm.qty) AS total_protein,
+                            SUM(ti.fat_gm * tm.qty) AS total_fat_gm
+                        FROM 
+                            tbl_meal tm
+                        JOIN 
+                            tbl_item ti ON tm.item_id = ti.item_id
+                        WHERE 
+                            tm.user_id = ?
+                            AND tm.order_id IN (
+                                SELECT order_id 
+                                FROM tbl_order 
+                                WHERE is_active = 1 
+                                AND is_deleted = 0 
+                                AND status_ IN ('confirmed', 'in_preparation', 'ofd')
+                            );`
+
+            const [result] = await database.query(query, [user_id]);
+            console.log(result);
+
+            if(result.length === 0){
+                return callback(common.encrypt({
+                    code: response_code.NOT_FOUND,
+                    message: "NO DATA FOUND, MAKE ORDER"
+                }));
+            }
+
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "SUCCESS",
+                data: result
+            }));
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }));
+        }
+    }
 
 }
 

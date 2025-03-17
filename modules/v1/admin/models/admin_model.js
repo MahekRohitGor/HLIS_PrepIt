@@ -104,6 +104,74 @@ class adminModel {
         }
     }      
 
+    async analytics(requested_data, callback) {
+        try {
+            const queries = {
+                non_active_users: `SELECT COUNT(*) AS non_active_users FROM tbl_user WHERE is_active = 0;`,
+                active_users: `SELECT COUNT(*) AS active_users FROM tbl_user WHERE is_active = 1;`,
+                total_logins: `SELECT COUNT(*) AS total_logins FROM tbl_user WHERE is_login = 1 and is_active = 1 and is_deleted = 0;`,
+                orders_confirmed: `SELECT COUNT(*) AS confirmed_orders FROM tbl_order WHERE status_ = 'confirmed' and is_active = 1 and is_deleted = 0;`,
+                orders_completed: `SELECT COUNT(*) AS completed_orders FROM tbl_order WHERE status_ = 'complete' and is_active = 1 and is_deleted = 0;`
+            };
+    
+            const [nonactiveUsersResult] = await database.query(queries.non_active_users);
+            const [activeuserResult] = await database.query(queries.active_users);
+            const [totalLoginsResult] = await database.query(queries.total_logins);
+            const [ordersConfirmedResult] = await database.query(queries.orders_confirmed);
+            const [ordersCompletedResult] = await database.query(queries.orders_completed);
+    
+            const responseData = {
+                nonactiveUsers: nonactiveUsersResult[0].non_active_users,
+                active_user: activeuserResult[0].active_users,
+                total_logins: totalLoginsResult[0].total_logins,
+                orders_confirmed: ordersConfirmedResult[0].confirmed_orders,
+                orders_completed: ordersCompletedResult[0].completed_orders
+            };
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "Analytics fetched successfully",
+                data: responseData
+            }));
+    
+        } catch (error) {
+            console.error("Error in analytics:", error);
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "Failed to fetch analytics",
+                data: error.message
+            }));
+        }
+    }
+    
+    async admin_logout(admin_id, callback){
+        try{
+            const findAdmin = `SELECT * from tbl_admin where id = ${admin_id} and is_login = 1`;
+            const [result] = await database.query(findAdmin);
+            if(result.length === 0){
+                return callback(common.encrypt({
+                    code: response_code.NOT_FOUND,
+                    message: "ADMIN NOT FOUND",
+                    data: result
+                }));
+            }
+
+            const query = `UPDATE tbl_admin SET token = null, is_login = 0 where id = ${admin_id}`;
+            const [data] = await database.query(query);
+
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "SUCCESSFULLY LOGOUT"
+            }))
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR OCCURED",
+                data: error.message
+            }));
+        }
+    }
 }
 
 module.exports = new adminModel();

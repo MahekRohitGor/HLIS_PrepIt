@@ -116,6 +116,14 @@ class User{
             common.response(res, _response_data);
         });
     }
+
+    async display_home_page(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.display_home_page(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
 }
 
 
