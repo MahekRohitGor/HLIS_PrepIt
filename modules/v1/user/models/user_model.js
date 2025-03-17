@@ -908,6 +908,86 @@ class userModel{
         }
     }
 
+    async change_password(requested_data, user_id, callback){
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+
+        var selectQuery = "SELECT * FROM tbl_user WHERE user_id = ? and is_login = 1";
+        try {
+            const [rows] = await database.query(selectQuery, [user_id]);
+            
+            if (!rows || rows.length === 0) {
+                return callback(common.encrypt({
+                    code: response_code.NOT_FOUND,
+                    message: t('no_data_found')
+                }));
+            }
+            const user = rows[0];
+    
+            const oldPasswordHash = md5(request_data.old_password);
+            const newPasswordHash = md5(request_data.new_password);
+
+            console.log(oldPasswordHash);
+            console.log(user.password_);
+            if (oldPasswordHash !== user.password_) {
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: t('old_password_mismatch')
+                }));
+            }
+    
+            if (newPasswordHash === user.password_) {
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: t('old_new_password_same')
+                }));
+            }
+    
+            const data = {
+                password_: newPasswordHash
+            };
+
+            const updateQuery = "UPDATE tbl_user SET ? where user_id = ?";
+            await database.query(updateQuery, [data, user_id]);
+
+            const selectUser = "SELECT * FROM tbl_user where user_id = ?"
+            const [result] = await database.query(selectUser, [user_id]);
+
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: t('password_changed_success'),
+                data: result
+            }));
+    
+        } catch (error) {
+            console.error('Change Password Error:', error);
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: error.message || t('password_change_error')
+            }));
+        }
+    }
+
+    async report(requested_data, user_id, callback){
+        try{
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            const report = request_data.report;
+
+            const query = `INSERT INTO tbl_report (report, user_id) values (?, ?)`;
+            await database.query(query, [report, user_id]);
+
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "REPORT POSTED SUCCESSFULLY"
+            }));
+
+        } catch(error){
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR",
+                data: error.message
+            }));
+        }
+    }
 }
 
 module.exports = new userModel();

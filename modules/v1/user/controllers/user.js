@@ -124,6 +124,22 @@ class User{
             common.response(res, _response_data);
         });
     }
+
+    async change_password(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.change_password(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
+
+    async report(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.report(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
 }
 
 

@@ -17,6 +17,8 @@ const user = (app) =>{
         app.post("/v1/user/delete-account", users.delete_account);
         app.post("/v1/user/show-order-detail", users.show_order_details);
         app.post("/v1/user/home-page", users.display_home_page);
+        app.post("/v1/user/change-password", users.change_password);
+        app.post("/v1/user/report", users.report);
 }
 
 module.exports = user;
