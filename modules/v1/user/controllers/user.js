@@ -116,7 +116,6 @@ class User{
             common.response(res, _response_data);
         });
     }
-
 }
 
 

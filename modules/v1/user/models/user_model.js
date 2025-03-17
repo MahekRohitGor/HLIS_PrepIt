@@ -10,7 +10,7 @@ const validator = require("../../../../middlewares/validator");
 var lib = require('crypto-lib');
 
 const { t } = require('localizify');
-const user = require("../controllers/user");
+// const user = require("../controllers/user");
 
 class userModel{
     async signup(requested_data, callback) {
@@ -732,10 +732,10 @@ class userModel{
             }
     
             const now = new Date();
-            const delivery_time_start = now.toTimeString().split(' ')[0]; 
+            const delivery_time_start = new Date(now.getTime() + 2 * 60 * 60 * 1000);;
     
             const deliveryEndDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); 
-            const delivery_time_end = deliveryEndDate.toTimeString().split(' ')[0]; 
+            const delivery_time_end = deliveryEndDate; 
     
             const order_data = {
                 user_id: user_id,
@@ -860,8 +860,7 @@ class userModel{
                 data: null
             }));
         }
-    }
-
+    }  
     
 
 }

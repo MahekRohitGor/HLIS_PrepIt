@@ -11,7 +11,8 @@ const response_code = {
     NOT_FOUND: "404",
     VERIFICATION_PENDING: "5",
     GOAL_SETUP_PENDING: "6",
-    COMPLETE_PROFILE_PENDING: "7"
+    COMPLETE_PROFILE_PENDING: "7",
+    UNAUTHORIZED: "401"
 }
 
 module.exports = response_code;

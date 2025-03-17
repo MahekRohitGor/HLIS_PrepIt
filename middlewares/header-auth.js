@@ -78,6 +78,22 @@ class headerAuth{
         }
     }
 
+    async getRequestAdmin(token){
+        try{
+            console.log("Getting Admin from token:", token);
+            const selectQuery = `SELECT * FROM tbl_admin WHERE token = ?`;
+            const [owner] = await database.query(selectQuery, [token]);
+            console.log(owner);
+            if(owner.length > 0){
+                return owner[0];
+            }else{
+                throw new Error("Invalid access token");
+            }
+        }catch (error) {
+            throw error;
+        }
+    }
+
     async header(req, res, next) {
         try {
             console.log("here");
@@ -94,7 +110,7 @@ class headerAuth{
                 .add("fr", fr)
                 .add("guj", guj);
     
-            const byPassApi = ['forgotPassword', 'verifyOtp', 'resendOTP' , 'login', 'signup', 'resetPassword', 'api-docs'];
+            const byPassApi = ['forgotPassword', 'verifyOtp', 'resendOTP' , 'login', 'signup', 'resetPassword', 'api-docs', 'admin-login'];
             var api_dec = common.decryptPlain(headers["api-key"]).replace(/\0/g, '').replace(/[^\x00-\xFF]/g, "");
             if (api_dec === process.env.API_KEY) {
                 var headerObj = new headerAuth();
@@ -112,8 +128,19 @@ class headerAuth{
                     }
 
                     try {
-                        const user = await headerObj.getRequestOwner(token);
-                        req.user_id = user.user_id;
+                        var user;
+                        
+                        // Determine whether request is for 'admin' or 'user'
+                        if (req.requestedModule === 'admin') {
+                            user = await headerObj.getRequestAdmin(token);
+                            console.log("Admin found:", user);
+                            req.user_id = user.admin_id; // Assign admin_id if admin
+                        } else {
+                            user = await headerObj.getRequestOwner(token);
+                            console.log("User found:", user);
+                            req.user_id = user.user_id;
+                        }
+
                         req.user = user;
                         console.log("req.user_id set to:", req.user_id);
                         next();

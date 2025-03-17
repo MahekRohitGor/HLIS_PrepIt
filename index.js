@@ -7,6 +7,7 @@ const app_routing = require("./modules/app-routing");
 const validator = require("./middlewares/validator");
 const headerAuth = require("./middlewares/header-auth");
 const api_doc = require('./modules/v1/Api_document/route');
+const cronn = require("./middlewares/cronjob")
 
 require('dotenv').config();
 
@@ -18,6 +19,8 @@ app.use("/api-doc", api_doc);
 app.use(validator.extractHeaderLang);
 app.use(headerAuth.validateHeader);
 app.use(headerAuth.header);
+
+cronn.updateOrderStatus();
 
 app_routing.v1(app);
 
