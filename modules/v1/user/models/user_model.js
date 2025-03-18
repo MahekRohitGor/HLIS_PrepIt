@@ -722,7 +722,6 @@ class userModel{
     async make_order(requested_data, user_id, callback) {
         try {
             const request_data = JSON.parse(common.decryptPlain(requested_data));
-
             const findSubscUser = `SELECT * from tbl_subsc_user where user_id = ? and expires_at > NOW() AND is_active = 1 AND is_deleted = 0`;
             const [subscribers] = await database.query(findSubscUser, [user_id]);
 
@@ -794,6 +793,66 @@ class userModel{
         }
     }
     
+    async subscribe(requested_data, user_id, callback) {
+        try {
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            const duration = request_data.duration_in_months;
+    
+            if (![3, 6, 9, 12].includes(duration)) {
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: "Invalid subscription duration. Choose 3, 6, 9, or 12 months.",
+                }));
+            }
+    
+            // Subscription pricing logic
+            let price = 29.99;
+            if (duration === 6) price = price * 2 - 12;
+            if (duration === 9) price = price * 3 - 13;
+            if (duration === 12) price = price * 4 - 14;
+    
+            // Check if user already has an active subscription
+            const checkSubQuery = `SELECT * FROM tbl_subsc_user WHERE user_id = ? AND expires_at > NOW() AND is_active = 1`;
+            const [existingSubscription] = await database.query(checkSubQuery, [user_id]);
+    
+            if (existingSubscription.length > 0) {
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: "You already have an active subscription.",
+                    data: existingSubscription
+                }));
+            }
+    
+            // Calculate subscription expiry date
+            const now = new Date();
+            const expires_at = new Date(now.setMonth(now.getMonth() + duration));
+    
+            // Insert new subscription
+            const insertQuery = `
+                INSERT INTO tbl_subsc_user (user_id, price, duration_in_months, expires_at) 
+                VALUES (?, ?, ?, ?)`;
+            await database.query(insertQuery, [user_id, price, duration, expires_at]);
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "Subscription successful!",
+                data: {
+                    user_id: user_id,
+                    price: price,
+                    duration_in_months: duration,
+                    expires_at: expires_at
+                }
+            }));
+        } catch (error) {
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "Error subscribing user",
+                data: error.message
+            }));
+        }
+    }
+    
+
     async delete_account(user_id, callback){
         try{
             const queries = [

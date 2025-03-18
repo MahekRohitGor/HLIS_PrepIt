@@ -247,6 +247,14 @@ class User{
             common.response(res, _response_data);
         });
     }
+
+    async subscribe(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.subscribe(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
 }
 
 
