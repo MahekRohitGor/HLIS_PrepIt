@@ -255,6 +255,14 @@ class User{
             common.response(res, _response_data);
         });
     }
+
+    async list_items(req,res){
+        const request_data = req.body;
+        const user_id = req.user_id;
+        userModel.list_items(request_data, user_id, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
 }
 
 

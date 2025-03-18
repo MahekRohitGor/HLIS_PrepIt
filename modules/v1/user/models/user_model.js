@@ -1064,6 +1064,42 @@ class userModel{
             }));
         }
     }
+
+    async list_items(requested_data, user_id, callback) {
+        try {
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+    
+            const { breakfast, lunch, dinner } = request_data;
+            let categoryFilter = [];
+            if (breakfast) categoryFilter.push("'Breakfast'");
+            if (lunch) categoryFilter.push("'Lunch'");
+            if (dinner) categoryFilter.push("'Dinner'");
+    
+            let query;
+            if (categoryFilter.length > 0) {
+                query = `SELECT * FROM tbl_item WHERE category IN (${categoryFilter.join(", ")}) AND is_deleted = 0`;
+            } else {
+                // If no filter is selected, fetch all active items
+                query = `SELECT * FROM tbl_item WHERE is_deleted = 0`;
+            }
+    
+            const [items] = await database.query(query);
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "ITEMS FETCHED SUCCESSFULLY",
+                data: items
+            }));
+    
+        } catch (error) {
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "ERROR FETCHING ITEMS",
+                data: error.message
+            }));
+        }
+    }
+    
 }
 
 module.exports = new userModel();
