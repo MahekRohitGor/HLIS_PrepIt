@@ -20,10 +20,10 @@ class validator{
             if(v.fails()){
                 const errors = v.getErrors();
                 const firstError = Object.values(errors)[0][0];
-                const response_data = {
+                const response_data = common.encrypt({
                     code: response_code.OPERATION_FAILED,
                     message: firstError
-                };
+                });
                 common.response(res, response_data);
                 return false;
             } else{

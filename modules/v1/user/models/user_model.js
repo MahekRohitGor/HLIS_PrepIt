@@ -13,10 +13,10 @@ const { t } = require('localizify');
 // const user = require("../controllers/user");
 
 class userModel{
-    async signup(requested_data, callback) {
+    async signup(request_data, callback) {
         try {
             // decrypt data and convert into json
-            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            // const request_data = JSON.parse(common.decryptPlain(requested_data));
 
             const data = {
                 user_name: request_data.user_name,
@@ -172,10 +172,10 @@ class userModel{
         console.log("OTP sent to user_id:", user_id, "OTP:", otp);
     }
 
-    async verifyOtp(requested_data, callback) {
+    async verifyOtp(request_data, callback) {
         try {
             // decrypt data and parse into json
-            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            // const request_data = JSON.parse(common.decryptPlain(requested_data));
 
             const {email_id} = request_data;
             const selectUserQuery = "SELECT user_id FROM tbl_user WHERE email_id = ? and is_active = 1 and is_deleted = 0";
@@ -248,15 +248,15 @@ class userModel{
             return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
                 message: t('some_error_occurred'),
-                data: error
+                data: error.message
             }));
         }
     }
 
-    async resendOTP(requested_data, callback){
+    async resendOTP(request_data, callback){
         try{
         // decrypt and parse into JSON    
-        const request_data = JSON.parse(common.decryptPlain(requested_data));
+        // const request_data = JSON.parse(common.decryptPlain(requested_data));
 
         const {email_id} = request_data;
         const selectUserQuery = "SELECT user_id FROM tbl_user WHERE email_id = ? and is_active = 1 and is_deleted = 0";
@@ -321,9 +321,9 @@ class userModel{
     }
     }
 
-    async forgotPassword(requested_data, callback) {
+    async forgotPassword(request_data, callback) {
         try {
-            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            // const request_data = JSON.parse(common.decryptPlain(requested_data));
 
             if (!request_data.email_id && !request_data.phone_number) {
                 return callback(common.encrypt({
@@ -389,8 +389,9 @@ class userModel{
         }
     }
 
-    async resetPassword(request_data, callback){
-        const requested_data = JSON.parse(common.decryptPlain(request_data));
+    async resetPassword(requested_data, callback){
+        // const requested_data = JSON.parse(common.decryptPlain(request_data));
+
         const { reset_token, new_password } = requested_data;
         console.log(reset_token);
     
@@ -434,8 +435,8 @@ class userModel{
         }
     }
 
-    async login(requested_data, callback){
-        const request_data = JSON.parse(common.decryptPlain(requested_data));
+    async login(request_data, callback){
+        // const requested_data = JSON.parse(common.decryptPlain(requested_data));
 
         const user_data = {};
         if(request_data.email_id != undefined && request_data.email_id != ""){
@@ -499,10 +500,10 @@ class userModel{
         }
     }
     
-    async complete_profile(requested_data, user_id, callback) {
+    async complete_profile(request_data, user_id, callback) {
         try {
             console.log(user_id);
-            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            // const request_data = JSON.parse(common.decryptPlain(requested_data));
     
             const [checkResult] = await database.query(
                 `SELECT isstep_ FROM tbl_user WHERE user_id = ?`,

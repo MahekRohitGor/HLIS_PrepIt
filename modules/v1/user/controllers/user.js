@@ -8,49 +8,156 @@ const vrules = require("../../../validation_rules");
 
 class User{
     async signup(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+
+        const rules = vrules.signup;
+        var message = {
+            required: t('required'),
+            email: t('email'),
+            'phone_number.min': t('mobile_number_min'),
+            'phone_number.regex': t('mobile_number_numeric'),
+            'password_.min': t('passwords_min')
+        }
+        var keywords = {
+            'email_id': t('rest_keywords_email_id'),
+            'password_': t('rest_keywords_password')
+        }
+
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         userModel.signup(request_data, (_response_data)=>{
             common.response(res, _response_data);
         });
     }
 
     async verifyOtp(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+
+        var rules = vrules.verifyOTP;
+        var message = {
+            required: t('required'),
+            email: t('email'),
+            'otp.min': t('otp_min')
+        }
+        var keywords = {
+            'email_id': t('rest_keywords_email_id'),
+            'otp': t('rest_keywords_otp')
+        }
+
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         userModel.verifyOtp(request_data, (_response_data)=>{
             common.response(res, _response_data);
         });
     }
 
     async resendOTP(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+        var rules = vrules.resendOTP;
+        var message = {
+            required: t('required'),
+            email: t('email')
+        }
+        var keywords = {
+            'email_id': t('rest_keywords_email_id')
+        }
+
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         userModel.resendOTP(request_data, (_response_data)=>{
             common.response(res, _response_data);
         });
     }
 
     async forgotPassword(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+        var rules = vrules.forgot_password;
+        var message = {
+            required: t('required'),
+            email: t('email'),
+            'phone_number.min': t('mobile_number_min'),
+            'phone_number.regex': t('mobile_number_numeric')
+        }
+        var keywords = {
+            'email_id': t('rest_keywords_email_id')
+        }
+
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         userModel.forgotPassword(request_data, (_response_data)=>{
             common.response(res, _response_data);
         });
     }
 
     async resetPassword(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+        var rules = vrules.reset_password;
+        var message = {
+            required: t('required'),
+            'reset_token.min': t('reset_token_min'),
+            'reset_token.max': t('reset_token_max'),
+            'new_password.min': t('new_password_min')
+        }
+        var keywords = {
+            'reset_token': t('rest_keywords_reset_token'),
+            'new_password': t('rest_keywords_new_password')
+        }
+
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         userModel.resetPassword(request_data, (_response_data)=>{
             common.response(res, _response_data);
         });
     }
 
     async login(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+        
+        var rules = vrules.login;
+        var message = {
+            required: t('required'),
+            email: t('email'),
+            'passwords.min': t('passwords_min')
+        }
+        var keywords = {
+            'email_id': t('rest_keywords_email_id'),
+            'passwords': t('rest_keywords_password')
+        }
+
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         userModel.login(request_data, (_response_data)=>{
             common.response(res, _response_data);
         });
     }
 
     async complete_profile(req,res){
-        const request_data = req.body;
+        const requested_data = req.body;
+        const request_data = JSON.parse(common.decryptPlain(requested_data));
+
+        var rules = vrules.complete_profile;
+        var message = {
+            required: t('required')
+        }
+        var keywords = {
+            'dob': t('rest_keywords_dob'),
+            'gender': t('rest_keywords_gender')
+        }
+        const isValid = await validator.checkValidationRules(req, res, request_data, rules, message, keywords);
+        if (!isValid) return;
+
         const user_id = req.user_id;
         userModel.complete_profile(request_data, user_id, (_response_data)=>{
             common.response(res, _response_data);
