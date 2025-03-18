@@ -133,7 +133,29 @@ var frenchMessage = {
   "already_active_subscription": "L'abonnement est déjà actif.",
   "subscription_success": "Abonnement réussi.",
   "already_rated_reviewed": "Déjà noté ou évalué.",
-  "review_added_success": "Avis ajouté avec succès."
+  "review_added_success": "Avis ajouté avec succès.",
+  "rest_keywords_username": "Nom d'utilisateur",
+    "login_with_admin_cred": "Connexion avec les identifiants administrateur",
+    "admin_login_success": "Connexion administrateur réussie",
+    "must_be_string": "Doit être une chaîne",
+    "must_be_array": "Doit être un tableau",
+    "must_be_one_of_the_valid_categories": "Doit être l'une des catégories valides",
+    "must_be_a_number": "Doit être un nombre",
+    "must_be_at_least_0": "Doit être au moins 0",
+    "exceeds_max_length": "Dépasse la longueur maximale",
+    "rest_keywords_image_name": "Nom de l'image",
+    "rest_keywords_item_name": "Nom de l'article",
+    "rest_keywords_ingredients": "Ingrédients",
+    "rest_keywords_category": "Catégorie",
+    "rest_keywords_price": "Prix",
+    "rest_keywords_description": "Description",
+    "item_ingredients_added_success": "Ingrédients de l'article ajoutés avec succès",
+    "analytics_fetch_success": "Analyse récupérée avec succès",
+    "analytics_fetch_fail": "Échec de la récupération de l'analyse",
+    "admin_not_found": "Administrateur non trouvé",
+    "logout_success": "Déconnexion réussie",
+    "item_not_found_or_deleted": "Article introuvable ou déjà supprimé",
+    "item_delete_success": "Article supprimé avec succès"
 }
 
 module.exports = frenchMessage;

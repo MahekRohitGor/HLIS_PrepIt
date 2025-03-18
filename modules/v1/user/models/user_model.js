@@ -693,7 +693,6 @@ class userModel{
 
     async list_notifications(user_id, callback){
         try{
-            // const request_data = JSON.parse(common.decryptPlain(requested_data));
             const query = `SELECT * from tbl_notification where user_id = ?`;
             const [notifications] = await database.query(query, [user_id]);
             if(notifications.length === 0){

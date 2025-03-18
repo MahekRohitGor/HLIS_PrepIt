@@ -12,17 +12,9 @@ var lib = require('crypto-lib');
 const { t } = require('localizify');
 
 class adminModel {
-    async admin_login(requested_data, callback){
+    async admin_login(request_data, callback){
         try{
-            const request_data = JSON.parse(common.decryptPlain(requested_data));
             const { username, password } = request_data;
-
-            if (!username || !password) {
-                return callback(common.encrypt({
-                    code: response_code.BAD_REQUEST,
-                    message: "Email and Password are required"
-                }));
-            }
             // const pswd = md5(password);
 
             var query = `SELECT * from tbl_admin where admin_username = ? and admin_password = ?`;
@@ -30,7 +22,7 @@ class adminModel {
             if(result.length === 0){
                 return callback(common.encrypt({
                     code: response_code.UNAUTHORIZED,
-                    message: "Please Login with Correct Admin Credentials"
+                    message: t('login_with_admin_cred') //new
                 }));
             }
 
@@ -40,29 +32,21 @@ class adminModel {
 
             return callback(common.encrypt({
                 code: response_code.SUCCESS,
-                message: "Admin Login Success"
+                message: t('admin_login_success') // new
             }))
 
         } catch(error){
             return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
-                message: "ERROR",
+                message: t('some_error_occurred'),
                 data: error.message
             }));
         }
     }
 
-    async add_items(requested_data, callback) {
+    async add_items(request_data, callback) {
         try {
-            const request_data = JSON.parse(common.decryptPlain(requested_data));
             const { image_name, name_, kcal, carbs_gm, protein, fat_gm, about, ingredients, category } = request_data;
-    
-            if (!image_name || !name_ || !ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
-                return callback(common.encrypt({
-                    code: response_code.BAD_REQUEST,
-                    message: "Image name, item name, and ingredients are required"
-                }));
-            }
     
             const insertImageQuery = `INSERT INTO tbl_images (image_name) VALUES (?);`;
             const [imageResult] = await database.query(insertImageQuery, [image_name]);
@@ -87,7 +71,7 @@ class adminModel {
     
             return callback(common.encrypt({
                 code: response_code.SUCCESS,
-                message: "Item and ingredients added successfully",
+                message: t('item_ingredients_added_success'),
                 data: {
                     item_id: item_id,
                     image_id: image_id
@@ -95,10 +79,9 @@ class adminModel {
             }));
     
         } catch (error) {
-            console.error("Error in add_items:", error);
             return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
-                message: "An error occurred",
+                message: t('some_error_occurred'),
                 data: error.message
             }));
         }
@@ -130,7 +113,7 @@ class adminModel {
     
             return callback(common.encrypt({
                 code: response_code.SUCCESS,
-                message: "Analytics fetched successfully",
+                message: t('analytics_fetch_success'),
                 data: responseData
             }));
     
@@ -138,7 +121,7 @@ class adminModel {
             console.error("Error in analytics:", error);
             return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
-                message: "Failed to fetch analytics",
+                message: t('analytics_fetch_fail'),
                 data: error.message
             }));
         }
@@ -151,7 +134,7 @@ class adminModel {
             if(result.length === 0){
                 return callback(common.encrypt({
                     code: response_code.NOT_FOUND,
-                    message: "ADMIN NOT FOUND",
+                    message: t('admin_not_found'),
                     data: result
                 }));
             }
@@ -161,13 +144,13 @@ class adminModel {
 
             return callback(common.encrypt({
                 code: response_code.SUCCESS,
-                message: "SUCCESSFULLY LOGOUT"
+                message: t('logout_success')
             }))
 
         } catch(error){
             return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
-                message: "ERROR OCCURED",
+                message: t('some_error_occurred'),
                 data: error.message
             }));
         }
@@ -192,7 +175,7 @@ class adminModel {
             if (result.length === 0) {
                 return callback(common.encrypt({
                     code: response_code.NOT_FOUND,
-                    message: "Item not found or already deleted"
+                    message: t('item_not_found_or_deleted')
                 }));
             }
     
@@ -202,14 +185,14 @@ class adminModel {
     
             return callback(common.encrypt({
                 code: response_code.SUCCESS,
-                message: "ITEM DELETED SUCCESSFULLY",
+                message: t('item_delete_success'),
                 data: { item_id }
             }));
     
         } catch (error) {
             return callback(common.encrypt({
                 code: response_code.OPERATION_FAILED,
-                message: "SOME ERROR OCCURRED",
+                message: t('some_error_occurred'),
                 data: error.message
             }));
         }

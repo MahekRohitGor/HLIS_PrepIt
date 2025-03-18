@@ -131,6 +131,17 @@ class common{
     decryptPlain(data) {
         return cryptLib.decrypt(data, constants.encryptionKey, constants.encryptionIV);
     }
+    decryptString (data){
+        try{
+            if(data){
+                return cryptLib.decrypt(data, constants.encryptionKey, constants.encryptionIV);
+            }else{
+                return;
+            }
+        }catch(error){
+            return error;
+        }
+    }
 
 }
 

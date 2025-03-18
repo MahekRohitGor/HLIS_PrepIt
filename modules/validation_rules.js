@@ -46,6 +46,19 @@ const rules = {
     changePassword: {
         old_password: "required|min:8",
         new_password: "required|min:8"
+    },
+
+    admin_login:{
+        username: "required",
+        password: "required"
+    },
+
+    add_items: {
+        image_name: "required|string",
+        name_: "required|string",
+        ingredients: "required|array",
+        category: "string|in:Breakfast,Lunch,Dinner",
+        description: "string|max:500"
     }
 }
 

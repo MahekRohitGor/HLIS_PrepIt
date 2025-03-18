@@ -133,7 +133,29 @@ var englishMessage = {
 "already_active_subscription": "Subscription is already active.",
 "subscription_success": "Subscription successful.",
 "already_rated_reviewed": "Already rated or reviewed.",
-"review_added_success": "Review added successfully."
+"review_added_success": "Review added successfully.",
+"rest_keywords_username": "Username",
+    "login_with_admin_cred": "Login with admin credentials",
+    "admin_login_success": "Admin login successful",
+    "must_be_string": "Must be a string",
+    "must_be_array": "Must be an array",
+    "must_be_one_of_the_valid_categories": "Must be one of the valid categories",
+    "must_be_a_number": "Must be a number",
+    "must_be_at_least_0": "Must be at least 0",
+    "exceeds_max_length": "Exceeds maximum length",
+    "rest_keywords_image_name": "Image Name",
+    "rest_keywords_item_name": "Item Name",
+    "rest_keywords_ingredients": "Ingredients",
+    "rest_keywords_category": "Category",
+    "rest_keywords_price": "Price",
+    "rest_keywords_description": "Description",
+    "item_ingredients_added_success": "Item ingredients added successfully",
+    "analytics_fetch_success": "Analytics fetched successfully",
+    "analytics_fetch_fail": "Failed to fetch analytics",
+    "admin_not_found": "Admin not found",
+    "logout_success": "Logout successful",
+    "item_not_found_or_deleted": "Item not found or already deleted",
+    "item_delete_success": "Item deleted successfully"
 }
 
 module.exports = englishMessage;

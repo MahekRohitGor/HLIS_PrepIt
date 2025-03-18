@@ -133,7 +133,29 @@ var gujaratiMessage = {
 "already_active_subscription": "સબ્સ્ક્રિપ્શન પહેલેથી જ સક્રિય છે.",
 "subscription_success": "સબ્સ્ક્રિપ્શન સફળતાપૂર્વક થયું.",
 "already_rated_reviewed": "પહેલેથી જ રેટિંગ અથવા સમીક્ષા આપવામાં આવી છે.",
-"review_added_success": "સમીક્ષા સફળતાપૂર્વક ઉમેરી."
+"review_added_success": "સમીક્ષા સફળતાપૂર્વક ઉમેરી.",
+"rest_keywords_username": "વપરાશકર્તા નામ",
+    "login_with_admin_cred": "એડમિન ઓળખપત્રો સાથે લોગિન કરો",
+    "admin_login_success": "એડમિન લોગિન સફળ",
+    "must_be_string": "આ સ્ટ્રિંગ હોવું જોઈએ",
+    "must_be_array": "આ એરે હોવું જોઈએ",
+    "must_be_one_of_the_valid_categories": "માન્ય શ્રેણીઓમાંથી એક હોવું જોઈએ",
+    "must_be_a_number": "આ સંખ્યા હોવી જોઈએ",
+    "must_be_at_least_0": "ઓછામાં ઓછું 0 હોવું જોઈએ",
+    "exceeds_max_length": "મહત્તમ લંબાઈથી વધુ",
+    "rest_keywords_image_name": "છબીનું નામ",
+    "rest_keywords_item_name": "વસ્તુનું નામ",
+    "rest_keywords_ingredients": "ઘટકો",
+    "rest_keywords_category": "શ્રેણી",
+    "rest_keywords_price": "કીમત",
+    "rest_keywords_description": "વર્ણન",
+    "item_ingredients_added_success": "વસ્તુ ઘટકો સફળતાપૂર્વક ઉમેરાયા",
+    "analytics_fetch_success": "વિશ્લેષણ સફળતાપૂર્વક મેળવાયું",
+    "analytics_fetch_fail": "વિશ્લેષણ મેળવવામાં નિષ્ફળ",
+    "admin_not_found": "એડમિન મળી આવ્યો નહીં",
+    "logout_success": "લૉગઆઉટ સફળ",
+    "item_not_found_or_deleted": "વસ્તુ મળી નથી અથવા પહેલાથી કાઢી નાખવામાં આવી છે",
+    "item_delete_success": "વસ્તુ સફળતાપૂર્વક કાઢી નાખી"
 }
 
 module.exports = gujaratiMessage;
