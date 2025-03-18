@@ -805,7 +805,7 @@ class userModel{
                 }));
             }
     
-            // Subscription pricing logic
+            // Subscription pricing
             let price = 29.99;
             if (duration === 6) price = price * 2 - 12;
             if (duration === 9) price = price * 3 - 13;
@@ -852,7 +852,6 @@ class userModel{
         }
     }
     
-
     async delete_account(user_id, callback){
         try{
             const queries = [

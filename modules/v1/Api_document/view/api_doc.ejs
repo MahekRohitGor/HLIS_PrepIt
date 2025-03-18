@@ -505,6 +505,22 @@
                     status: "<br>1. HTTP_OK[200] - code : 0 (Failed to submit report due to an error) <br>2. HTTP_OK[200] - code : 1 (Report submitted successfully)",
                     imp: "Code 0 => Failure (Error occurred while submitting report), Code 1 => Successfully posted report."
                 }, {
+                    color: "teal",
+                    icon: "person",
+                    title: "22 : USER",
+                    name: "User Subscription",
+                    meth: "POST",
+                    link: "<%= PORT_BASE_URL %>/v1/user/subscribe",
+                    mandatory: "user_id, duration_in_months",
+                    optional: "",
+                    is_header: "YES",
+                    is_push: "NO",
+                    header: "api-key, authorization_token, accept_language",
+                    notes: "This API allows a user to subscribe for a selected duration.",
+                    status: "<br>1. HTTP_OK[200] - code : 1 <br>2. HTTP_OK[200] - code : 0 ",
+                    imp: "Code 1 => Successfully Subscribed, Code 0 => Subscription Failed (Invalid duration or already subscribed)"
+                    },
+                    {
                     color: 'teal',
                     icon: 'person',
                     title: '18 : ADMIN',
@@ -564,7 +580,24 @@
                     notes: "This API logs out an admin",
                     status: "<br>1. HTTP_OK[200] - code : 0 <br>2. HTTP_OK[200] - code : 1 ",
                     imp: "Code 0 => Failure, Code 1 => Successfully logged out",
-                }, ]
+                }, 
+                {
+                    color: 'teal',
+                    icon: 'person',
+                    title: '21 : ADMIN',
+                    name: 'Delete Items',
+                    meth: 'POST',
+                    link: "<%= PORT_BASE_URL %>/v1/user/delete-items",
+                    mandatory: "item_id",
+                    optional: "",
+                    is_header: "YES",
+                    is_push: "NO",
+                    header: "api-key, authorization_token, accept_language",
+                    notes: "This API is used to delete an item by marking it as inactive and deleted.",
+                    status: "<br>1. HTTP_OK[200] - code : 1 (Item deleted successfully) <br>2. HTTP_OK[200] - code : 0 (Failure - Item not found or already deleted)",
+                    imp: "Code 1 => Successfully Deleted, Code 0 => Item not found or already deleted",
+                }, 
+            ]
             })
         });
     </script>
