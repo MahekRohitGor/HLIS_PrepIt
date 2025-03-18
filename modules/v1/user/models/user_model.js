@@ -764,14 +764,19 @@ class userModel{
             const order_id = orderRes.insertId;
     
             for (const meal of meals) {
-                const meal_data = {
-                    order_id: order_id,
-                    item_id: meal.item_id,
-                    qty: meal.qty || 1,
-                    category: category,
-                    user_id: user_id
-                };
-                await database.query(`INSERT INTO tbl_meal SET ?`, [meal_data]);
+                const checkItemQuery = `SELECT * FROM tbl_item WHERE item_id = ? AND is_deleted = 0`;
+                const [validItems] = await database.query(checkItemQuery, [meal.item_id]);
+    
+                if (validItems.length > 0) {
+                    const meal_data = {
+                        order_id: order_id,
+                        item_id: meal.item_id,
+                        qty: meal.qty || 1,
+                        category: category,
+                        user_id: user_id
+                    };
+                    await database.query(`INSERT INTO tbl_meal SET ?`, [meal_data]);
+                }
             }
     
             return callback(common.encrypt({
