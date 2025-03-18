@@ -35,6 +35,13 @@ class Admin {
             common.response(res, _response_data);
         });
     }
+
+    async delete_item(req,res){
+        const request_data = req.body;
+        adminModel.delete_item(request_data, (_response_data)=>{
+            common.response(res, _response_data);
+        });
+    }
 }
 
 module.exports = new Admin();

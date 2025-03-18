@@ -172,6 +172,49 @@ class adminModel {
             }));
         }
     }
+
+    async delete_item(requested_data, callback) {
+        try {
+            const request_data = JSON.parse(common.decryptPlain(requested_data));
+            const item_id = request_data.item_id;
+    
+            if (!item_id) {
+                return callback(common.encrypt({
+                    code: response_code.BAD_REQUEST,
+                    message: "Item ID is required"
+                }));
+            }
+    
+            // Check if the item exists and is active
+            const checkQuery = `SELECT * FROM tbl_item WHERE item_id = ? AND is_deleted = 0`;
+            const [result] = await database.query(checkQuery, [item_id]);
+    
+            if (result.length === 0) {
+                return callback(common.encrypt({
+                    code: response_code.NOT_FOUND,
+                    message: "Item not found or already deleted"
+                }));
+            }
+    
+            // Soft delete the item
+            const query = `UPDATE tbl_item SET is_active = 0, is_deleted = 1 WHERE item_id = ?`;
+            await database.query(query, [item_id]);
+    
+            return callback(common.encrypt({
+                code: response_code.SUCCESS,
+                message: "ITEM DELETED SUCCESSFULLY",
+                data: { item_id }
+            }));
+    
+        } catch (error) {
+            return callback(common.encrypt({
+                code: response_code.OPERATION_FAILED,
+                message: "SOME ERROR OCCURRED",
+                data: error.message
+            }));
+        }
+    }
+    
 }
 
 module.exports = new adminModel();
