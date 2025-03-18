@@ -55,7 +55,7 @@ class adminModel {
     async add_items(requested_data, callback) {
         try {
             const request_data = JSON.parse(common.decryptPlain(requested_data));
-            const { image_name, name_, kcal, carbs_gm, protein, fat_gm, about, ingredients } = request_data;
+            const { image_name, name_, kcal, carbs_gm, protein, fat_gm, about, ingredients, category } = request_data;
     
             if (!image_name || !name_ || !ingredients || !Array.isArray(ingredients) || ingredients.length === 0) {
                 return callback(common.encrypt({
@@ -68,8 +68,8 @@ class adminModel {
             const [imageResult] = await database.query(insertImageQuery, [image_name]);
             const image_id = imageResult.insertId;
     
-            const insertItemQuery = `INSERT INTO tbl_item (image_id, name_, kcal, carbs_gm, protein, fat_gm, about) VALUES (?,?,?,?,?,?,?);`;
-            const [itemResult] = await database.query(insertItemQuery, [image_id, name_, kcal, carbs_gm, protein, fat_gm, about]);
+            const insertItemQuery = `INSERT INTO tbl_item (image_id, name_, kcal, carbs_gm, protein, fat_gm, about, category) VALUES (?,?,?,?,?,?,?,?);`;
+            const [itemResult] = await database.query(insertItemQuery, [image_id, name_, kcal, carbs_gm, protein, fat_gm, about, category]);
             const item_id = itemResult.insertId;
     
             for (const ingredient_name of ingredients) {

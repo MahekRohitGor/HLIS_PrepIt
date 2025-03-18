@@ -722,6 +722,18 @@ class userModel{
     async make_order(requested_data, user_id, callback) {
         try {
             const request_data = JSON.parse(common.decryptPlain(requested_data));
+
+            const findSubscUser = `SELECT * from tbl_subsc_user where user_id = ? and expires_at > NOW() AND is_active = 1 AND is_deleted = 0`;
+            const [subscribers] = await database.query(findSubscUser, [user_id]);
+
+            if(subscribers.length === 0){
+                return callback(common.encrypt({
+                    code: response_code.OPERATION_FAILED,
+                    message: "You are not Subscribed... Please Subscribe !",
+                    data: subscribers
+                }));
+            }
+
             const meals = request_data.meals;
             const category = request_data.category;
     
